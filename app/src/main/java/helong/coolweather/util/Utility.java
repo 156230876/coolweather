@@ -16,7 +16,7 @@ import helong.coolweather.db.Province;
  */
 
 public class Utility {
-    String TAG="parseResponseClass";
+    static String TAG="parseResponseClass";
     /**
      * 解析省级数据并写入数据库
      */

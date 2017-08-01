@@ -55,7 +55,7 @@ public class Utility {
                     City city=new City();
                     city.setCityCode(objectCity.getInt("id"));
                     city.setCityName(objectCity.getString("name"));
-                    city.setProvince(provinceId);
+                    city.setProvinceId(provinceId);
                     city.save();
                 }
                 return true;
@@ -78,7 +78,7 @@ public class Utility {
                     County county=new County();
                     //county.setCountyCode(objectCounty.getInt("id"));
                     county.setCountyName(objectCounty.getString("name"));
-                    county.setWeatherId(objectCounty.getInt("weather_id"));
+                    county.setWeatherId(objectCounty.getString("weather_id"));
                     county.setCityId(cityId);
                     county.save();
                 }

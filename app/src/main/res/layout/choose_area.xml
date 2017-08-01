@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:layout_marginLeft="10dp"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:background="@color/colorPrimaryDark"/>
+            android:background="@mipmap/ic_launcher"/>
         <ListView
             android:id="@+id/list_view"
             android:layout_width="match_parent"

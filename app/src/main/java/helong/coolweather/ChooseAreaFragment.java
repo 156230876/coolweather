@@ -36,6 +36,7 @@ import okhttp3.Response;
 public class ChooseAreaFragment extends Fragment {
 
     private String adress="http://guolin.tech/api/china";
+    static String TAG="helong";
     public static final int LEVEL_PROVINCE=0;
     public static final int LEVEL_CTTY=1;
     public static final int LEVEL_COUNTY=2;
@@ -70,12 +71,12 @@ public class ChooseAreaFragment extends Fragment {
      */
     private int currentLevel;
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup contaniner, Bundle savedInstanceState){
-          View view =inflater.inflate(R.layout.choose_area,contaniner,false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+          View view =inflater.inflate(R.layout.choose_area,container,false);
         titleText=(TextView)view.findViewById(R.id.title_text);
         backButton=(Button) view.findViewById(R.id.back_button);
         listView=(ListView) view.findViewById(R.id.list_view);
-        adapter=new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,dataList);
+        adapter=new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1,dataList);
         listView.setAdapter(adapter);
         return view;
 
@@ -95,7 +96,7 @@ public class ChooseAreaFragment extends Fragment {
                     queryCounties();
                 }
                 else{
-
+                    Log.d(TAG, "onActivityCreated-onItemClick:click position is county ");
                 }
             }
         });
@@ -107,7 +108,7 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevel==LEVEL_CTTY){
                     queryProvinces();
                 }else {
-
+                    Log.d(TAG, "backButton-onClick: in the province level ");
                 }
 
             }
@@ -120,14 +121,23 @@ public class ChooseAreaFragment extends Fragment {
         backButton.setVisibility(View.GONE);
         provincesList= DataSupport.findAll(Province.class);
         if(provincesList.size()>0){
+            Log.d(TAG, "queryProvinces: database has data");
             dataList.clear();
-            for (Province province:provincesList){
+            int size=provincesList.size();
+            
+            Province province=null;
+            for (int i=0;i<size;i++){
+                province=provincesList.get(i);
                 dataList.add(province.getProvinceName());
+              //  Log.d(TAG, "queryProvinces: i=?"+i);
             }
+            Log.d(TAG, "queryProvinces: data fill  to the dataList");
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             currentLevel=LEVEL_PROVINCE;
         }else{
+            adress="http://guolin.tech/api/china";
+            Log.d(TAG, "queryProvinces: database no data ,get data from internet,goto queryFromServer() ");
            queryFromServer(adress,"province");
         }
 
@@ -135,19 +145,24 @@ public class ChooseAreaFragment extends Fragment {
     private void queryCities(){
         titleText.setText(selectedProvince.getProvinceName());
         backButton.setVisibility(View.VISIBLE);
-        cityList=DataSupport.where("provinceid=?",String.valueOf(selectedProvince.getId())).find(City.class);
+        cityList=DataSupport.where("provinceId=?",String.valueOf(selectedProvince.getId())).find(City.class);
         if(cityList.size()>0){
             dataList.clear();
-            for(City city:cityList){
+            City city=null;
+            int size=cityList.size();
+            for(int i=0;i<size;i++){
+                city=cityList.get(i);
                 dataList.add(city.getCityName());
+               // Log.d(TAG, "queryCities: get data from database num "+i);
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             currentLevel=LEVEL_CTTY;
         }else {
             int province=selectedProvince.getProvinceCode();
-
-            queryFromServer(adress+"/"+province,"city");
+            adress="http://guolin.tech/api/china/"+province;
+            Log.d(TAG, "queryCities:database no data, get city data from internet,go to queryFromServer()");
+            queryFromServer(adress,"city");
         }
 
 
@@ -155,11 +170,15 @@ public class ChooseAreaFragment extends Fragment {
     private void queryCounties(){
         titleText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);
-        countyList=DataSupport.where("cityid=?",String.valueOf(selectedCity.getId())).find(County.class);
+        countyList=DataSupport.where("cityId=?",String.valueOf(selectedCity.getId())).find(County.class);
         if(countyList.size()>0){
             dataList.clear();
-            for(County county:countyList){
+            int size=countyList.size();
+            County county=null;
+            for(int i=0;i<size;i++){
+                county=countyList.get(i);
                 dataList.add(county.getCountyName());
+               // Log.d(TAG, "queryCounties: get data from database ,the num "+i);
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(View.VISIBLE);
@@ -167,7 +186,8 @@ public class ChooseAreaFragment extends Fragment {
         }else {
             int provincecode=selectedProvince.getProvinceCode();
             int citycode=selectedCity.getCityCode();
-            queryFromServer(adress+"/"+provincecode+"/"+citycode,"county");
+            adress="http://guolin.tech/api/china/"+provincecode+"/"+citycode;
+            queryFromServer(adress,"county");
         }
 
     }
@@ -181,10 +201,13 @@ public class ChooseAreaFragment extends Fragment {
                 String respnoseText=response.body().string();
                 boolean result=false;
                 if ("province".equals(type)){
+                    Log.d(TAG, "onResponse: return data to be parse in handleProvinceResponse");
                     result= Utility.handleProvinceResponse(respnoseText);
                 }else if("city".equals(type)){
+                    Log.d(TAG, "onResponse: return data to be parsed in handleCityResponse");
                     result=Utility.handleCityResponse(respnoseText,selectedProvince.getId());
                 }else if("county".equals(type)){
+                    Log.d(TAG, "onResponse: return data to be parse in handleCountyResponse");
                     result=Utility.handleCountyResponse(respnoseText,selectedCity.getId());
                 }else {
 
@@ -194,7 +217,7 @@ public class ChooseAreaFragment extends Fragment {
                         @Override
                         public void run(){
                             closeProgressDialog();
-                            if("prvince".equals(type)){
+                            if("province".equals(type)){
                                 queryProvinces();
                             }else if ("city".equals(type)){
                                 queryCities();
@@ -218,7 +241,7 @@ public class ChooseAreaFragment extends Fragment {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getContext(),"加载失败",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(),"加载失败",Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -228,7 +251,7 @@ public class ChooseAreaFragment extends Fragment {
     }
     private void showProgressDialog(){
         if(progressDialog==null){
-            progressDialog=new ProgressDialog(getContext());
+            progressDialog=new ProgressDialog(getActivity());
             progressDialog.setMessage("正在加载...");
             progressDialog.setCanceledOnTouchOutside(false);
         }

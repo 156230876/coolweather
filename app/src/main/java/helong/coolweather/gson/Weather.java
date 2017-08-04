@@ -2,6 +2,8 @@ package helong.coolweather.gson;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by helong02 on 2017/8/3.
  */
@@ -11,7 +13,7 @@ public class Weather {
     public Basic basic;
     public AQI aqi;
     @SerializedName("daily_forecast")
-    public String<Forecast> forecastList;
+    public List<Forecast> forecastList;
     public Now now;
     public Suggestion suggestion;
 

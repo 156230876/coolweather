@@ -25,6 +25,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static helong.coolweather.util.Utility.*;
+
 public class WeatherActivity extends AppCompatActivity {
     static String TAG="helong";
     private ScrollView weatherLayout;
@@ -42,6 +44,7 @@ public class WeatherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+        Utility utility=new Utility();
         //初始化各个控件
         weatherLayout=(ScrollView)findViewById(R.id.weather_layout);
         titleCity=(TextView)findViewById(R.id.title_city);
@@ -59,7 +62,9 @@ public class WeatherActivity extends AppCompatActivity {
         String weatherString=prefs.getString("weather",null);
         if(weatherString!=null){
             Log.d(TAG, "weatherActivity-onCreate:the prefs has date ,to showWeatherInfo() ");
-            Weather weather= Utility.handleWeatherResponse(weatherString);
+
+            Weather weather= utility.handleWeatherResponse(weatherString);
+
             showWeatherInfo(weather);
         }else{
             Log.d(TAG, "weatherActivity-onCreate:the prefs has not date,to requesWeather() ");
@@ -88,17 +93,20 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText=response.body().string();
-                final Weather weather=Utility.handleWeatherResponse(responseText);
+                    Utility utility=new Utility();
+                final Weather weather=utility.handleWeatherResponse(responseText);
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(weather!=null&&"ok".equals(weather.status)){
-                            Log.d(TAG, "WeatherActivity-requestWeather: request suecess");
+                            Log.d(TAG, "WeatherActivity-requestWeather: request suecess"+weatherId);
                             SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather",responseText);
                             editor.apply();
                             showWeatherInfo(weather);
                         }else {
+                            Log.d(TAG, "WeatherActivity-requestWeather: request fail"+weatherId);
                             Toast.makeText(WeatherActivity.this,"获取天气数据失败，但不是异常",Toast.LENGTH_SHORT).show();
                         }
                     }

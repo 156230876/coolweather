@@ -98,15 +98,17 @@ public class Utility {
      */
     public   Weather handleWeatherResponse(String response){
         try{
-            Log.d(TAG, "utility-instance initializer: parse weather start ");
+            Log.d(TAG, "utility-instance initializer: parse weather start   "+response);
             JSONObject jsonObject=new JSONObject(response);
             JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");
             String weatherContent=jsonArray.getJSONObject(0).toString();
             Log.d(TAG, "instance initializer:  parse json to weather succeced");
-            return new Gson().fromJson(weatherContent,Weather.class);
+             Weather weather=new Gson().fromJson(weatherContent,Weather.class);
+            return weather;
         }catch (Exception e){
             e.printStackTrace();
             Log.d(TAG, "instance initializer:  parse json to weather erro");
         }
+        return null;
     }
 }

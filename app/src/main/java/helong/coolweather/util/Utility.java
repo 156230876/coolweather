@@ -3,6 +3,8 @@ package helong.coolweather.util;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,13 +12,14 @@ import org.json.JSONObject;
 import helong.coolweather.db.City;
 import helong.coolweather.db.County;
 import helong.coolweather.db.Province;
+import helong.coolweather.gson.Weather;
 
 /**
  * Created by helong02 on 2017/7/25.
  */
 
 public class Utility {
-    static String TAG="parseResponseClass";
+    static String TAG="helong";
     /**
      * 解析省级数据并写入数据库
      */
@@ -89,5 +92,21 @@ public class Utility {
             }
         }
         return false;
+    }
+    /**
+    将返回的json数据解析成weather实体类
+     */
+    public   Weather handleWeatherResponse(String response){
+        try{
+            Log.d(TAG, "utility-instance initializer: parse weather start ");
+            JSONObject jsonObject=new JSONObject(response);
+            JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");
+            String weatherContent=jsonArray.getJSONObject(0).toString();
+            Log.d(TAG, "instance initializer:  parse json to weather succeced");
+            return new Gson().fromJson(weatherContent,Weather.class);
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.d(TAG, "instance initializer:  parse json to weather erro");
+        }
     }
 }
